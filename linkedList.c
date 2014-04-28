@@ -4,67 +4,126 @@
 #include "assert.h"
 
 linkedList* linkedList_generate(){
-	return (linkedList*) malloc(sizeof(linkedList));
+	linkedList *aux = (linkedList*) malloc(sizeof(linkedList));
+
+    if (aux == NULL) {
+        printf("malloc failed\n");
+        exit(-1);
+    }    
+
+    aux->tail = NULL;
+    aux->head = NULL;
+
+	return aux;
 }
 
 void linkedList_addToFront(linkedList* list,intptr_t data){
 	node *newnode = (node*) malloc(sizeof(node));
 	newnode->data = data;
+	newnode->next = NULL;
 
-	list->tail = list->head;
-	list->head = newnode;
-	list->head->next = list->tail;
+	if (!list->head)
+	{
+		list->head = newnode;	
+		list->tail = newnode;
+	}
+	else{
+		newnode->next = list->head;
+		list->head = newnode;
+	}
 }
 
 void linkedList_addToEnd(linkedList* list,intptr_t data){
 	node *newnode = (node*) malloc(sizeof(node));
 	newnode->data = data;
-	
-	list->tail = list->head;
+	newnode->next = NULL;
 
-	while(list->tail->next != NULL)
-		list->tail = list->tail->next;
+	if (!list->tail)
+	{
+		list->head = newnode;	
+		list->tail = newnode;
+	}
+	else{
+		list->tail->next = newnode;
+		list->tail = newnode;	
+	}
 
-	list->tail->next = newnode;
 }
 
 void linkedList_RemoveFromFront(linkedList* list){
-	
-	list->tail = list->head;	
-	list->head = list->head->next;
+	node *aux = list->head;
 
-	free(list->tail);
+	if (list->head == NULL)
+		return ; 
+
+	if(list->head->next == NULL){
+		free(aux);
+		list->head = NULL;
+		list->tail = NULL;
+	} 
+	else{
+		list->head = list->head->next;
+		free(aux);
+	}
+
 }
 
 //note: This will have o(n) complexity
 void linkedList_RemoveFromEnd(linkedList* list){
-	
-	list->tail = list->head;
+	node *aux = list->head;
 
-	while(list->tail->next->next != NULL){
-		free(list->tail->next);
+	if (list->tail == NULL)
+		return ; 
+
+	if(list->head->next == NULL){
+		free(aux);
+		list->head = NULL;
+		list->tail = NULL;
+	} 
+	else{		
+		while(aux->next != list->tail)
+			aux = aux->next;
+		
+		free(aux->next);
+		list->tail = aux;
+		list->tail->next = NULL;
 	}
 }
 
 
-void linkedList_free(linkedList* list){
-	list->tail = list->head;
-	
-	while (list->tail->next != NULL){
-		list->tail = list->tail->next;
-		list->head = list->tail;
-		free(list->head);
+void linkedList_free(linkedList* list){	
+	node *aux, *auxfree;
+	aux = list->head;
+
+	if(list->head != NULL)
+	{
+		while (aux->next != NULL){
+			auxfree = aux;
+			aux = aux->next;
+			free(auxfree);
+		}	
+		free(aux);
 	}
-	free(list->tail);
+
+	free(list);
 }
 
 void linkedList_print(linkedList* list){
-	
-	
+	node *aux = list->head;
+
+	if (list->head == NULL)
+		return;
+
+	printf("List:\t");
+
+	while(aux->next != NULL){
+		printf("%ld\t", aux->data); 
+		aux = aux->next;
+	};
+	printf("%ld\n", aux->data); 
 }
 
 //callenges:
-
 
 // -- tests --
 //	note: important to test for memory leaks also,
@@ -88,26 +147,26 @@ void testList(){
 	linkedList_addToEnd(num,4);
 	//num: 1 -> 2 -> 3 -> 4
 	
-	node* tail = num->head;
+	node* curr = num->head;
 	for(intptr_t i = 1;i<=4;i++){
-		assert(tail->data == i);
-		tail = tail->next;
+		assert(curr->data == i);
+		curr = curr->next;
 	}
 	
 	linkedList_RemoveFromEnd(num);
 	//num: 1 -> 2 -> 3
-	tail = num->head;
+	curr = num->head;
 	for(intptr_t i = 1;i<=3;i++){
-		assert(tail->data == i);
-		tail = tail->next;
+		assert(curr->data == i);
+		curr = curr->next;
 	}
 	
 	linkedList_RemoveFromFront(num);
 	//num: 2 -> 3
-	tail = num->head;
+	curr = num->head;
 	for(intptr_t i = 2;i<=3;i++){
-		assert(tail->data == i);
-		tail = tail->next;
+		assert(curr->data == i);
+		curr = curr->next;
 	}
 	
 	linkedList_RemoveFromFront(num);
@@ -116,4 +175,3 @@ void testList(){
 	assert(num->tail == NULL);
 	linkedList_free(num);
 }
-

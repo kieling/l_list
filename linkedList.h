@@ -22,7 +22,7 @@ void linkedList_addToFront(linkedList* list,intptr_t data);
 void linkedList_addToEnd(linkedList* list,intptr_t data);
 void linkedList_RemoveFromFront(linkedList* list);
 void linkedList_RemoveFromEnd(linkedList* list);
-void linkedList_print(linkedList* list,PrintMode mode);
+void linkedList_print(linkedList* list);
 
 //--tests -- 
 void testList();
