@@ -23,6 +23,8 @@ void linkedList_addToEnd(linkedList* list,intptr_t data);
 void linkedList_RemoveFromFront(linkedList* list);
 void linkedList_RemoveFromEnd(linkedList* list);
 void linkedList_print(linkedList* list);
+void linkedList_ReverseList(linkedList* list);
+void linkedList_RemoveKth(linkedList* list, int element);
 
 //--tests -- 
 void testList();

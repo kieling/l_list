@@ -123,7 +123,73 @@ void linkedList_print(linkedList* list){
 	printf("%ld\n", aux->data); 
 }
 
-//callenges:
+void linkedList_ReverseList(linkedList* list){
+	if (list->head == NULL)
+		return ;
+	
+	node *aux = NULL; 
+
+	/* Ex: 0   1->2->3
+		aux = 0    next = 2  
+		1->0  2->3
+		aux = 1   next = 3
+		2->1->0  3
+		aux = 2   next = null
+		3->-2->1->0 
+	*/
+	
+	do {
+
+		node *next = list->head->next; 
+		list->head->next = aux;
+		aux = list->head;
+		list->head = next;
+
+	} while (list->head != NULL);
+
+	list->head = aux;
+}
+
+void linkedList_RemoveKth(linkedList* list, int element){
+	if ((list->head == NULL) || (element == 0))
+		return ; 
+
+	int i = 0;
+	node *aux = list->head;
+	node *before; 
+
+	if (element == 1)
+	{
+		list->head = list->head->next;
+		free(aux);
+		return ;
+	}
+
+	/*
+		Ex: 1 -> 2 -> 3 
+		aux = 2 
+		aux->next = 3
+		before = 1;
+		free(aux) (2)
+		before->next = 3 (1 -> 3)
+	*/
+	do
+	{
+		if (aux && aux->next){
+			before = aux; 
+			aux = aux->next;
+			i++;
+		}
+		else{
+			printf("List doesnt have that number of elements\n");	
+			return ; 
+		}
+	} while(i < (element-1));
+
+	before->next = aux->next; 
+
+	free(aux);
+}
 
 // -- tests --
 //	note: important to test for memory leaks also,
@@ -138,15 +204,52 @@ void testList(){
 	for(size_t s = 0;s < 20; s++){
 		linkedList_addToEnd(list,2);
 	}
+
 	linkedList_free(list); //check for memory leaks
 	
+	linkedList* num1 = linkedList_generate();
+	linkedList_addToFront(num1,2);
+	linkedList_addToFront(num1,1);
+	linkedList_addToEnd(num1,3);
+	linkedList_addToEnd(num1,4);
+	linkedList_addToEnd(num1,6);
+	//num: 1 -> 2 -> 3 -> 4
+	printf("\nList:\n");
+	linkedList_print(num1);
+
+	
+	printf("\nReverting list:\n");
+	linkedList_ReverseList(num1);
+	linkedList_print(num1);
+
+	printf("Reverting back:\n");
+	linkedList_ReverseList(num1);
+	linkedList_print(num1);
+
+	printf("\nTesting Kth remove:\n");
+
+	printf("Removing the second element:\n");
+	linkedList_RemoveKth(num1, 2);
+	linkedList_print(num1);
+
+	printf("Removing the first element:\n");
+	linkedList_RemoveKth(num1, 1);
+	linkedList_print(num1);
+
+	printf("Removing the 4th element:\n");
+	linkedList_RemoveKth(num1, 4);
+	linkedList_print(num1);
+
+	linkedList_free(num1);
+
+
 	linkedList* num = linkedList_generate();
 	linkedList_addToFront(num,2);
 	linkedList_addToFront(num,1);
 	linkedList_addToEnd(num,3);
 	linkedList_addToEnd(num,4);
 	//num: 1 -> 2 -> 3 -> 4
-	
+
 	node* curr = num->head;
 	for(intptr_t i = 1;i<=4;i++){
 		assert(curr->data == i);
@@ -168,7 +271,7 @@ void testList(){
 		assert(curr->data == i);
 		curr = curr->next;
 	}
-	
+
 	linkedList_RemoveFromFront(num);
 	linkedList_RemoveFromFront(num);
 	assert(num->head == NULL);
